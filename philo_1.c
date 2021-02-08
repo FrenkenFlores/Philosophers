@@ -22,6 +22,7 @@ typedef struct s_philosopher
 	pthread_t right_fork_thread;
 	pthread_t left_fork_thread;
 	pthread_t timer;
+	pthread_t put_down_fork;
 }	t_philosopher;
 
 
@@ -140,7 +141,6 @@ static void count_time(struct timeval *time)
 
 void *count_down(void *philosopher)
 {
-	int id;
 	struct timeval time;
 	t_philosopher *tmp;
 
@@ -150,11 +150,49 @@ void *count_down(void *philosopher)
 	if (!tmp->eating)
 	{
 		count_time(&time);
-		printf("%d %d died\n", time.tv_usec, id + 1);
+		printf("%d %d died\n", time.tv_usec, tmp->id + 1);
 		tmp->died = 1;
 		exit (EXIT_SUCCESS);
 	}
 	return NULL;
+}
+
+void *put_down_l_fork(void *philosopher)
+{
+	struct timeval time;
+	t_philosopher *tmp;
+
+	tmp = (t_philosopher *)philosopher;
+	tmp->died = 0;
+	usleep(60);
+	if (!tmp->left_fork_flag && tmp->right_fork_flag)
+	{
+		if (pthread_mutex_unlock(&mutex_data[tmp->l_fork_id].mutex))
+			exit(EXIT_SUCCESS);
+		mutex_data[tmp->l_fork_id].lock = 0;
+		tmp->left_fork_flag = 1;
+		count_time(&time);
+		printf("%d %d has put left fork\n", time.tv_usec, tmp->id + 1);
+	}
+}
+
+void *put_down_r_fork(void *philosopher)
+{
+	struct timeval time;
+	t_philosopher *tmp;
+
+	tmp = (t_philosopher *)philosopher;
+	tmp->died = 0;
+	usleep(60);
+	if (tmp->left_fork_flag && !tmp->right_fork_flag)
+	{
+		if (pthread_mutex_unlock(&mutex_data[tmp->r_fork_id].mutex))
+			exit(EXIT_SUCCESS);
+		mutex_data[tmp->r_fork_id].lock = 0;
+		tmp->right_fork_flag = 1;
+		count_time(&time);
+		printf("%d %d has put right fork\n", time.tv_usec, tmp->id + 1);
+	}
 }
 
 void *take_right_fork(void *philosopher)
@@ -164,12 +202,16 @@ void *take_right_fork(void *philosopher)
 
 	tmp = (t_philosopher *)philosopher;
 	tmp->r_fork_id = find_free_fork();
-	tmp->right_fork_flag = 1;
+//	tmp->right_fork_flag = 1;
 	if ((tmp->right_fork_flag = pthread_mutex_lock(&mutex_data[tmp->r_fork_id].mutex)))
 		exit(EXIT_FAILURE);
 	mutex_data[tmp->r_fork_id].lock = 1;
 	count_time(&time);
 	printf("%d %d has taken a right fork\n", time.tv_usec, tmp->id + 1);
+	if ((pthread_create(&(tmp->put_down_fork), NULL, put_down_r_fork, (void *)tmp)))
+		exit(EXIT_FAILURE);
+	if ((pthread_detach(tmp->put_down_fork)))
+		exit(EXIT_FAILURE);
 }
 
 void *take_left_fork(void *philosopher)
@@ -179,12 +221,16 @@ void *take_left_fork(void *philosopher)
 
 	tmp = (t_philosopher *)philosopher;
 	tmp->l_fork_id = find_free_fork();
-	tmp->left_fork_flag = 1;
+//	tmp->left_fork_flag = 1;
 	if ((tmp->left_fork_flag = pthread_mutex_lock(&mutex_data[tmp->l_fork_id].mutex)))
 		exit(EXIT_FAILURE);
 	mutex_data[tmp->l_fork_id].lock = 1;
 	count_time(&time);
 	printf("%d %d has taken a left fork\n", time.tv_usec, tmp->id + 1);
+	if ((pthread_create(&(tmp->put_down_fork), NULL, put_down_l_fork, (void *)tmp)))
+		exit(EXIT_FAILURE);
+	if ((pthread_detach(tmp->put_down_fork)))
+		exit(EXIT_FAILURE);
 }
 
 void eat_sleep_think(t_philosopher *tmp)
@@ -217,14 +263,24 @@ void *f_philosopher(void *philosopher)
 	tmp->eating = 0;
 	while (1)
 	{
+		tmp->left_fork_flag = 1;
+		tmp->right_fork_flag = 1;
 //		if ((pthread_create(&(tmp->timer), NULL, count_down, (void *)tmp)))
 //			exit(EXIT_FAILURE);
 //		if ((pthread_detach(tmp->timer)))
 //			exit(EXIT_FAILURE);
 		if(pthread_create(&(tmp->left_fork_thread), NULL, take_left_fork, (void *)tmp))
 			exit(EXIT_FAILURE);
+//		if ((pthread_create(&(tmp->put_down_fork), NULL, put_down_fork, (void *)tmp)))
+//			exit(EXIT_FAILURE);
+//		if ((pthread_detach(tmp->put_down_fork)))
+//			exit(EXIT_FAILURE);
 		if(pthread_create(&(tmp->right_fork_thread), NULL, take_right_fork, (void *)tmp))
 			exit(EXIT_FAILURE);
+//		if ((pthread_create(&(tmp->put_down_fork), NULL, put_down_fork, (void *)tmp)))
+//			exit(EXIT_FAILURE);
+//		if ((pthread_detach(tmp->put_down_fork)))
+//			exit(EXIT_FAILURE);
 		if(pthread_join(tmp->left_fork_thread, NULL))
 			exit(EXIT_FAILURE);
 		if(pthread_join(tmp->right_fork_thread, NULL))
