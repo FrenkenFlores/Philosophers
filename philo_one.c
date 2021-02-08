@@ -6,7 +6,7 @@
 /*   By: fflores <fflores@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/31 15:07:04 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/01 19:23:24 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/07 22:56:12 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ typedef struct s_philosopher
 	int left_fork_flag;
 	int eating;
 	int locked;
+	int r_fork_id;
+	int l_fork_id;
 	int thinking;
 	int sleeping;
 	int died;
@@ -47,6 +49,9 @@ typedef struct s_data
 //	pthread_t *thread_id;
 }	t_data;
 
+int find_free_fork(void *data);
+
+
 int	 ft_atoi(char *nbr)
 {
 	int n;
@@ -56,6 +61,11 @@ int	 ft_atoi(char *nbr)
 		return (0);
 	while (*nbr >= '0' && *nbr <= '9')
 		n = n * 10 + *nbr++ - '0';
+	if (*nbr < 0 || *nbr > 0)
+	{
+		printf("Invalid arguments\n");
+		exit(EXIT_FAILURE);
+	}
 	return (n);
 }
 
@@ -122,10 +132,11 @@ void *count_down(void *data)
 	if (!tmp->philosophers[id].eating)
 	{
 		count_time(&time);
-		printf("%d %d (%d)died\n", time.tv_usec, id + 1, tmp->time_to_die);
+		printf("%d %d died\n", time.tv_usec, id + 1);
 		tmp->philosophers[id].died = 1;
 		exit (EXIT_SUCCESS);
 	}
+//	return NULL;
 }
 
 void *take_left_fork(void *data)
@@ -136,16 +147,17 @@ void *take_left_fork(void *data)
 
 	tmp = (t_data *)data;
 	id = tmp->philosopher_id;
+	tmp->philosophers[id].l_fork_id = find_free_fork(data);
 	tmp->philosophers[id].left_fork_flag = 1;
-	if ((tmp->philosophers[id].left_fork_flag = pthread_mutex_lock(&tmp->mutex_id[id])))
+	if ((tmp->philosophers[id].left_fork_flag = pthread_mutex_lock(&tmp->mutex_id[tmp->philosophers[id].l_fork_id])))
 		exit(EXIT_FAILURE);
-	tmp->philosophers[id].locked = 1;
+	tmp->philosophers[tmp->philosophers[id].l_fork_id].locked = 1;
 	count_time(&time);
 	printf("%d %d has taken a left fork\n", time.tv_usec, id + 1);
-	pthread_join(tmp->philosophers[id].thread_id, NULL);
-	if ((pthread_mutex_unlock(&tmp->mutex_id[id])));
-		exit(EXIT_FAILURE);
-	tmp->philosophers[id].locked = 0;
+//	pthread_join(tmp->philosophers[id].thread_id, NULL);
+//	if ((pthread_mutex_unlock(&tmp->mutex_id[tmp->philosophers[id].l_fork_id])))
+//		exit(EXIT_FAILURE);
+//	tmp->philosophers[id].locked = 0;
 }
 
 void *take_right_fork(void *data)
@@ -156,16 +168,17 @@ void *take_right_fork(void *data)
 
 	tmp = (t_data *)data;
 	id = tmp->philosopher_id;
+	tmp->philosophers[id].r_fork_id = find_free_fork(data);
 	tmp->philosophers[id].right_fork_flag = 1;
-	if ((tmp->philosophers[id].right_fork_flag = pthread_mutex_lock(&tmp->mutex_id[id])))
+	if ((tmp->philosophers[id].right_fork_flag = pthread_mutex_lock(&tmp->mutex_id[tmp->philosophers[id].r_fork_id])))
 		exit(EXIT_FAILURE);
-	tmp->philosophers[id].locked = 1;
+	tmp->philosophers[tmp->philosophers[id].r_fork_id].locked = 1;
 	count_time(&time);
 	printf("%d %d has taken a right fork\n", time.tv_usec, id + 1);
-	pthread_join(tmp->philosophers[id].thread_id, NULL);
-	if ((pthread_mutex_unlock(&tmp->mutex_id[id])))
-		exit(EXIT_SUCCESS);
-	tmp->philosophers[id].locked = 0;
+//	pthread_join(tmp->philosophers[id].thread_id, NULL);
+//	if ((pthread_mutex_unlock(&tmp->mutex_id[tmp->philosophers[id].r_fork_id])))
+//		exit(EXIT_SUCCESS);
+//	tmp->philosophers[id].locked = 0;
 }
 
 void eat_sleep_think(int id, t_data *tmp)
@@ -176,6 +189,11 @@ void eat_sleep_think(int id, t_data *tmp)
 	count_time(&time);
 	printf("%d %d is eating\n", time.tv_usec, id + 1);
 	usleep (tmp->time_to_eat);
+	if ((pthread_mutex_unlock(&tmp->mutex_id[tmp->philosophers[id].r_fork_id])) || 
+	(pthread_mutex_unlock(&tmp->mutex_id[tmp->philosophers[id].l_fork_id])))
+		exit(EXIT_SUCCESS);
+	tmp->philosophers[tmp->philosophers[id].r_fork_id].locked = 0;
+	tmp->philosophers[tmp->philosophers[id].l_fork_id].locked = 0;
 	count_time(&time);
 	printf("%d %d is sleeping\n", time.tv_usec, id + 1);
 	usleep(tmp->time_to_sleep);
@@ -183,7 +201,7 @@ void eat_sleep_think(int id, t_data *tmp)
 	printf("%d %d is thinking\n", time.tv_usec, id + 1);
 }
 
-void *find_free_fork(void *data)
+int find_free_fork(void *data)
 {
 	int id;
 	t_data *tmp;
@@ -192,8 +210,11 @@ void *find_free_fork(void *data)
 	id = 0;
 	while (1)
 	{
+//		printf("x\n");
 		if (!tmp->philosophers[id].locked)
-			return(&id);
+		{
+			return(id);
+		}
 		id++;
 		if (id == tmp->number_of_philosophers)
 		{
@@ -201,7 +222,7 @@ void *find_free_fork(void *data)
 			usleep(10000);
 		}
 	}
-	
+	return (0);
 }
 
 
@@ -215,10 +236,10 @@ void *philosopher(void *data)
 	tmp = (t_data *)data;
 	id = tmp->philosopher_id;
 
-	if ((pthread_create(&(tmp->philosophers[id].timer), NULL, count_down, (void *)tmp)))
-		exit(EXIT_FAILURE);
-	if ((pthread_detach(tmp->philosophers[id].timer)))
-		exit(EXIT_FAILURE);
+//	if ((pthread_create(&(tmp->philosophers[id].timer), NULL, count_down, (void *)tmp)))
+//		exit(EXIT_FAILURE);
+//	if ((pthread_detach(tmp->philosophers[id].timer)))
+//		exit(EXIT_FAILURE);
 
 //	id = tmp->philosophers[tmp->philosophers->id];
 //	if ((id = tmp->philosopher_id) == tmp->number_of_philosophers)
@@ -229,12 +250,16 @@ void *philosopher(void *data)
 	{
 		if(pthread_create(&(tmp->philosophers[id].left_fork_thread), NULL, take_left_fork, (void *)tmp))
 			exit(EXIT_FAILURE);
-		if(pthread_detach(tmp->philosophers[id].left_fork_thread))
+		if(pthread_join(tmp->philosophers[id].left_fork_thread, NULL))
 			exit(EXIT_FAILURE);
+//		if(pthread_detach(tmp->philosophers[id].left_fork_thread))
+//			exit(EXIT_FAILURE);
 		if(pthread_create(&(tmp->philosophers[id].right_fork_thread), NULL, take_right_fork, (void *)tmp))
 			exit(EXIT_FAILURE);
-		if(pthread_detach(tmp->philosophers[id].right_fork_thread))
+		if(pthread_join(tmp->philosophers[id].right_fork_thread, NULL))
 			exit(EXIT_FAILURE);
+//		if(pthread_detach(tmp->philosophers[id].right_fork_thread))
+//			exit(EXIT_FAILURE);
 //		tmp->philosophers[id].eating = 0;
 //		gettimeofday(&time, NULL);
 //		tmp->philosophers[id].right_fork = pthread_mutex_lock(&tmp->mutex_id[id]);
