@@ -8,6 +8,8 @@
 
 typedef struct s_philosopher
 {
+	suseconds_t last_eat_time;
+	suseconds_t present_time;
 	int right_fork_flag;
 	int left_fork_flag;
 	int eating;
@@ -151,24 +153,6 @@ int find_free_fork(void)
 	return (0);
 }
 
-void *count_down(void *philosopher)
-{
-	struct timeval time;
-	t_philosopher *tmp;
-
-	tmp = (t_philosopher *)philosopher;
-	tmp->died = 0;
-	usleep(time_to_die);
-	if (!tmp->eating)
-	{
-		gettimeofday(&time, NULL);
-		printf("%d %d died\n", time.tv_usec, tmp->id + 1);
-		tmp->died = 1;
-		exit (EXIT_SUCCESS);
-	}
-	return NULL;
-}
-
 void *put_down_l_fork(void *philosopher)
 {
 	struct timeval time;
@@ -205,59 +189,52 @@ void *put_down_r_fork(void *philosopher)
 	}
 }
 
-void *take_right_fork(void *philosopher)
+void take_right_fork(t_philosopher *tmp)
 {
-	t_philosopher *tmp;
 	struct timeval time;
 
-	tmp = (t_philosopher *)philosopher;
-	tmp->r_fork_id = ft_max(tmp->id, (tmp->id + 1) % number_of_philosophers);
-//	tmp->r_fork_id = find_free_fork();
-//	tmp->right_fork_flag = 1;
+	tmp->r_fork_id = (tmp->id + 1) % number_of_philosophers;
 	tmp->right_fork_flag = pthread_mutex_lock(&mutex_data[tmp->r_fork_id].mutex);
-//	mutex_data[tmp->r_fork_id].lock = 1;
 	gettimeofday(&time, NULL);
 	printf("%d %d has taken a right fork\n", time.tv_usec, tmp->id + 1);
-//	pthread_create(&(tmp->put_down_fork), NULL, put_down_r_fork, (void *)tmp);
-//	pthread_detach(tmp->put_down_fork);
 }
 
-void *take_left_fork(void *philosopher)
+void take_left_fork(t_philosopher *tmp)
 {
-	t_philosopher *tmp;
 	struct timeval time;
 
-	tmp = (t_philosopher *)philosopher;
-	tmp->l_fork_id = ft_min(tmp->id, (tmp->id + 1) % number_of_philosophers);
-//	tmp->l_fork_id = find_free_fork();
-//	tmp->left_fork_flag = 1;
+	tmp->l_fork_id = (tmp->id) % number_of_philosophers;
 	tmp->left_fork_flag = pthread_mutex_lock(&mutex_data[tmp->l_fork_id].mutex);
-//	mutex_data[tmp->l_fork_id].lock = 1;
 	gettimeofday(&time, NULL);
 	printf("%d %d has taken a left fork\n", time.tv_usec, tmp->id + 1);
-//	pthread_create(&(tmp->put_down_fork), NULL, put_down_l_fork, (void *)tmp);
-//	pthread_detach(tmp->put_down_fork);
 }
 
 void eat_sleep_think(t_philosopher *tmp)
 {
 	struct timeval time;
 	
-	tmp->eating = 1;
 	gettimeofday(&time, NULL);
 	printf("%d %d is eating\n", time.tv_usec, tmp->id + 1);
 	usleep (time_to_eat);
+	gettimeofday(&time, NULL);
+	tmp->last_eat_time = time.tv_usec;
 	pthread_mutex_unlock(&mutex_data[tmp->l_fork_id].mutex);
 	pthread_mutex_unlock(&mutex_data[tmp->r_fork_id].mutex);
 	mutex_data[tmp->l_fork_id].lock = 0;
 	mutex_data[tmp->r_fork_id].lock = 0;
-	tmp->eating = 0;
 	gettimeofday(&time, NULL);
 	printf("%d %d is sleeping\n", time.tv_usec, tmp->id + 1);
 	usleep(time_to_sleep);
 	gettimeofday(&time, NULL);
 	printf("%d %d is thinking\n", time.tv_usec, tmp->id + 1);
 	usleep(time_to_die - time_to_sleep);
+	gettimeofday(&time, NULL);
+	tmp->present_time = time.tv_usec;
+	if ((tmp->present_time - tmp->last_eat_time) >= time_to_die)
+	{
+		printf("%d\n", (tmp->present_time - tmp->last_eat_time));
+		exit(EXIT_FAILURE);
+	}
 }
 
 void *f_philosopher(void *philosopher)
@@ -266,25 +243,21 @@ void *f_philosopher(void *philosopher)
 	struct timeval time;
 
 	tmp = (t_philosopher *)philosopher;
-	tmp->eating = 0;
 	while (1)
 	{
 		tmp->left_fork_flag = 1;
 		tmp->right_fork_flag = 1;
-		pthread_create(&(tmp->timer), NULL, count_down, (void *)tmp);
-		pthread_detach(tmp->timer);
+
 		if (tmp->id % 2 == 0)
 		{
-			pthread_create(&(tmp->left_fork_thread), NULL, take_left_fork, (void *)tmp);
-			pthread_create(&(tmp->right_fork_thread), NULL, take_right_fork, (void *)tmp);
+			take_left_fork(tmp);
+			take_right_fork(tmp);
 		}
 		else
 		{
-			pthread_create(&(tmp->right_fork_thread), NULL, take_right_fork, (void *)tmp);
-			pthread_create(&(tmp->left_fork_thread), NULL, take_left_fork, (void *)tmp);
+			take_right_fork(tmp);
+			take_left_fork(tmp);
 		}
-		pthread_join(tmp->left_fork_thread, NULL);
-		pthread_join(tmp->right_fork_thread, NULL);
 		if (!tmp->left_fork_flag && !tmp->right_fork_flag)
 			eat_sleep_think(tmp);
 	}
@@ -302,6 +275,7 @@ int create_threads(t_data *data)
 		data->philosophers[i].id = i;
 		if ((pthread_create(&(data->philosophers[i].thread_id), NULL, f_philosopher, (void *) &data->philosophers[i])))
 			return (0);
+			usleep(600);
 		i++;
 	}
 	i = 0;
