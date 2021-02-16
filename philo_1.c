@@ -8,8 +8,8 @@
 
 typedef struct s_philosopher
 {
-	suseconds_t last_eat_time;
-	suseconds_t present_time;
+	long last_eat_time;
+	long present_time;
 	int right_fork_flag;
 	int left_fork_flag;
 	int eating;
@@ -49,9 +49,9 @@ typedef struct s_mutex
 
 t_mutex *mutex_data;
 int number_of_philosophers;
-int time_to_die;
-int time_to_eat;
-int time_to_sleep;
+long time_to_die;
+long time_to_eat;
+long time_to_sleep;
 
 int ft_min(int n1, int n2)
 {
@@ -63,9 +63,9 @@ int ft_max(int n1, int n2)
 	return(n1 > n2 ? n1 : n2);
 }
 
-int	 ft_atoi(char *nbr)
+long	 ft_atoi(char *nbr)
 {
-	int n;
+	long n;
 
 	n = 0;
 	if (!nbr)
@@ -99,7 +99,7 @@ int init_struct(t_data *data, char **argv, int argc)
 	time_to_sleep = ft_atoi(argv[4]);
 	if (argc == 6)
 		data->number_of_times_each_philosopher_must_eat = ft_atoi(argv[5]);
-	if (number_of_philosophers >= 200)
+	if (number_of_philosophers > 200)
 	{
 		printf("Do not test with more than 200 philosphers\n");
 		return(0);
@@ -133,6 +133,29 @@ int init_mutex(int number_of_philosophers)
 	return (1);
 }
 
+long ft_get_time(void)
+{
+	struct timeval tv;
+	long t;
+
+	gettimeofday(&tv, NULL);
+	t = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+	return (t);
+}
+
+
+
+static void ft_count_time(long amount_of_time)
+{
+	long start;
+
+	start = ft_get_time();
+	while (ft_get_time() < start + amount_of_time)
+	{
+//		printf("%ld\n", ft_get_time());
+		usleep(100);
+	}
+}
 
 int find_free_fork(void)
 {
@@ -191,66 +214,35 @@ void *put_down_r_fork(void *philosopher)
 
 void take_right_fork(t_philosopher *tmp)
 {
-	struct timeval time;
-
 	tmp->r_fork_id = (tmp->id + 1) % number_of_philosophers;
 	tmp->right_fork_flag = pthread_mutex_lock(&mutex_data[tmp->r_fork_id].mutex);
-	gettimeofday(&time, NULL);
-	printf("%d %d has taken a right fork\n", time.tv_usec, tmp->id + 1);
+	printf("%ld %d has taken a right fork\n", ft_get_time(), tmp->id + 1);
 }
 
 void take_left_fork(t_philosopher *tmp)
 {
-	struct timeval time;
-
 	tmp->l_fork_id = (tmp->id) % number_of_philosophers;
 	tmp->left_fork_flag = pthread_mutex_lock(&mutex_data[tmp->l_fork_id].mutex);
-	gettimeofday(&time, NULL);
-	printf("%d %d has taken a left fork\n", time.tv_usec, tmp->id + 1);
+	printf("%ld %d has taken a left fork\n", ft_get_time(), tmp->id + 1);
 }
 
-void eat_sleep_think(t_philosopher *tmp, int *first_loop)
+int eat_sleep_think(t_philosopher *tmp, int *first_loop)
 {
-	struct timeval time;
-
-//	gettimeofday(&time, NULL);
-//	tmp->present_time = time.tv_usec;
-//	time_to_die += 2;
-//	printf("{{%d %d}}\n", tmp->present_time - tmp->last_eat_time, time_to_die);
-//	printf("{{%d}}\n", tmp->present_time - tmp->last_eat_time);
-//	printf("{{id = %d     %d    %d      %d}}\n", tmp->id, tmp->present_time - tmp->last_eat_time, tmp->present_time, tmp->last_eat_time);
-//	if (((tmp->present_time - tmp->last_eat_time) > time_to_die) && *first_loop == 0)
-//	{
-//		printf("%d\n", (tmp->present_time - tmp->last_eat_time));
-//		exit(EXIT_FAILURE);
-//	}
-	gettimeofday(&time, NULL);
-	printf("%d %d is eating\n", time.tv_usec, tmp->id + 1);
-	usleep (time_to_eat);
-//	gettimeofday(&time, NULL);
-//	tmp->last_eat_time = time.tv_usec;
+	tmp->present_time = ft_get_time();
+	if (((tmp->present_time - tmp->last_eat_time) > time_to_die) && *first_loop == 0)
+		return(0);
+	tmp->last_eat_time = ft_get_time();
+	printf("%ld %d is eating\n", ft_get_time(), tmp->id + 1);
+	ft_count_time(time_to_eat);
 	pthread_mutex_unlock(&mutex_data[tmp->l_fork_id].mutex);
 	pthread_mutex_unlock(&mutex_data[tmp->r_fork_id].mutex);
 	mutex_data[tmp->l_fork_id].lock = 0;
 	mutex_data[tmp->r_fork_id].lock = 0;
-	gettimeofday(&time, NULL);
-	tmp->last_eat_time = time.tv_usec;
-	printf("%d %d is sleeping\n", time.tv_usec, tmp->id + 1);
-	usleep(time_to_sleep);
-	gettimeofday(&time, NULL);
-	printf("%d %d is thinking\n", time.tv_usec, tmp->id + 1);
-//	usleep(time_to_die - time_to_sleep);
-//	time_to_die =+ time_to_die - time_to_sleep; 
-//	usleep(100);
+	printf("%ld %d is sleeping\n", ft_get_time(), tmp->id + 1);
+	ft_count_time(time_to_sleep);
+	printf("%ld %d is thinking\n", ft_get_time(), tmp->id + 1);
 	*first_loop = 0;
-	gettimeofday(&time, NULL);
-	tmp->present_time = time.tv_usec;
-	printf("{{id = %d     %d    %d      %d}}\n", tmp->id + 1, tmp->present_time - tmp->last_eat_time, tmp->present_time, tmp->last_eat_time);
-	if (((tmp->present_time - tmp->last_eat_time) > time_to_die))
-	{
-		printf("%d\n", (tmp->present_time - tmp->last_eat_time));
-		exit(EXIT_FAILURE);
-	}
+	return (1);
 }
 
 void *f_philosopher(void *philosopher)
@@ -276,13 +268,18 @@ void *f_philosopher(void *philosopher)
 			take_left_fork(tmp);
 		}
 		if (!tmp->left_fork_flag && !tmp->right_fork_flag)
-			eat_sleep_think(tmp, &first_loop);
+			if(!(eat_sleep_think(tmp, &first_loop)))
+			{
+				printf("%ld %d died\n", ft_get_time(), tmp->id + 1);
+				return (NULL);
+			}
 	}
 }
 
 int create_threads(t_data *data)
 {
 	int i;
+	void *ret;
 
 	i = 0;
 	if(!(data->philosophers = (t_philosopher *)malloc(sizeof(t_philosopher) * number_of_philosophers)))
@@ -292,13 +289,14 @@ int create_threads(t_data *data)
 		data->philosophers[i].id = i;
 		if ((pthread_create(&(data->philosophers[i].thread_id), NULL, f_philosopher, (void *) &data->philosophers[i])))
 			return (0);
-//			usleep(600);
 		i++;
 	}
 	i = 0;
 	while (i < number_of_philosophers)
 	{
-		pthread_join(data->philosophers[i].thread_id, NULL);
+		pthread_join(data->philosophers[i].thread_id, &ret);
+		if (ret == NULL)
+			return (1);
 		i++;
 	}
 	return (1);
