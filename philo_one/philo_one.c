@@ -1,204 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_one.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/17 14:42:36 by fflores           #+#    #+#             */
+/*   Updated: 2021/02/17 14:52:40 by fflores          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include <pthread.h> //threads
-#include <stdio.h>  //printf
-#include <string.h> // memset
-#include <stdlib.h> // malloc, free etc
-#include <unistd.h> // write, usleep
-#include <sys/time.h> // gettimeofday
-
-typedef struct s_philosopher
-{
-	long last_eat_time;
-	long present_time;
-	int right_fork_flag;
-	int left_fork_flag;
-	int eating;
-	int locked;
-	int r_fork_id;
-	int l_fork_id;
-	int thinking;
-	int sleeping;
-	int died;
-	int id;
-	pthread_t thread_id;
-	pthread_t right_fork_thread;
-	pthread_t left_fork_thread;
-	pthread_t timer;
-	pthread_t put_down_fork;
-}	t_philosopher;
-
-
-typedef struct s_data
-{
-	t_philosopher *philosophers;
-	int philosopher_id;
-	pthread_mutex_t *mutex_id;
-}	t_data;
-
-
-typedef struct s_mutex
-{
-	pthread_mutex_t mutex;
-}   t_mutex;
-
-t_mutex *mutex_data;
-int number_of_philosophers;
-int number_of_times_each_philosopher_must_eat;
-long time_to_die;
-long time_to_eat;
-long time_to_sleep;
-int dead;
-int end;
-
-int ft_min(int n1, int n2)
-{
-	return(n1 < n2 ? n1 : n2);
-}
-
-int ft_max(int n1, int n2)
-{
-	return(n1 > n2 ? n1 : n2);
-}
-
-long	 ft_atoi(char *nbr)
-{
-	long n;
-
-	n = 0;
-	if (!nbr)
-		return (0);
-	while (*nbr >= '0' && *nbr <= '9')
-		n = n * 10 + *nbr++ - '0';
-	if (*nbr < 0 || *nbr > 0)
-	{
-		printf("Invalid arguments\n");
-		return(0);
-	}
-	return (n);
-}
-
-void start(t_data *data)
-{
-	dead = 0;
-	end = 0;
-	number_of_philosophers = 0;
-	time_to_die = 0;
-	time_to_eat = 0;
-	time_to_sleep = 0;
-	data->philosophers = NULL;
-	number_of_times_each_philosopher_must_eat = -1;
-	data->philosopher_id = 0;
-}
-
-int init_data(t_data *data, char **argv, int argc)
-{
-	number_of_philosophers = ft_atoi(argv[1]);
-	time_to_die = ft_atoi(argv[2]);
-	time_to_eat = ft_atoi(argv[3]);
-	time_to_sleep = ft_atoi(argv[4]);
-	if (argc == 6)
-		number_of_times_each_philosopher_must_eat = ft_atoi(argv[5]);
-	if (number_of_philosophers > 200)
-	{
-		printf("Do not test with more than 200 philosphers\n");
-		return(0);
-	}
-	if (time_to_die < 60 || time_to_eat < 60 || time_to_sleep < 60)
-	{
-		printf("Do not test with time under 60 ms\n");
-		return(0);
-	}
-	if (number_of_philosophers < 2)
-	{
-		printf("Invalid arguments\n");
-		return(0);
-	}
-	return (1);
-}
-
-void	mutix_destroy(void)
-{
-	int i;
-
-	i = 0;
-	while (i < number_of_philosophers)
-	{
-		pthread_mutex_destroy(&mutex_data[i].mutex);
-		i++;
-	}
-	free (mutex_data);
-}
-
-
-int init_mutex(int number_of_philosophers)
-{
-	int i;
-
-	i = 0;
-	if (!(mutex_data = (t_mutex *)malloc(sizeof(t_mutex) * number_of_philosophers)))
-		return (0);
-	while (i < number_of_philosophers)
-	{
-		if(pthread_mutex_init(&(mutex_data[i].mutex), NULL))
-		{
-			free (mutex_data);
-			return (0);
-		}
-		i++;
-	}
-	return (2);
-}
-
-long ft_get_time(void)
-{
-	struct timeval tv;
-	long t;
-
-	gettimeofday(&tv, NULL);
-	t = tv.tv_sec * 1000 + tv.tv_usec / 1000;
-	return (t);
-}
-
-static void ft_count_time(long amount_of_time)
-{
-	long start;
-
-	start = ft_get_time();
-	while (ft_get_time() < start + amount_of_time)
-		usleep(100);
-}
-
-void take_right_fork(t_philosopher *tmp)
-{
-	tmp->r_fork_id = (tmp->id + 1) % number_of_philosophers;
-	tmp->right_fork_flag = pthread_mutex_lock(&mutex_data[tmp->r_fork_id].mutex);
-	printf("%ld %d has taken a right fork\n", ft_get_time(), tmp->id + 1);
-}
-
-void take_left_fork(t_philosopher *tmp)
-{
-	tmp->l_fork_id = (tmp->id) % number_of_philosophers;
-	tmp->left_fork_flag = pthread_mutex_lock(&mutex_data[tmp->l_fork_id].mutex);
-	printf("%ld %d has taken a left fork\n", ft_get_time(), tmp->id + 1);
-}
-
-int eat_sleep_think(t_philosopher *tmp, int *first_loop)
-{
-	tmp->present_time = ft_get_time();
-	if (((tmp->present_time - tmp->last_eat_time) > time_to_die) && *first_loop == 0)
-		return(0);
-	tmp->last_eat_time = ft_get_time();
-	printf("%ld %d is eating\n", ft_get_time(), tmp->id + 1);
-	ft_count_time(time_to_eat);
-	pthread_mutex_unlock(&mutex_data[tmp->l_fork_id].mutex);
-	pthread_mutex_unlock(&mutex_data[tmp->r_fork_id].mutex);
-	printf("%ld %d is sleeping\n", ft_get_time(), tmp->id + 1);
-	ft_count_time(time_to_sleep);
-	printf("%ld %d is thinking\n", ft_get_time(), tmp->id + 1);
-	*first_loop = 0;
-	return (1);
-}
-
+#include "philo_one.h"
 
 void *check_if_dead_end(void *data)
 {
@@ -213,23 +25,6 @@ void *check_if_dead_end(void *data)
 			return (NULL);
 		}
 		usleep(100);
-	}
-}
-
-
-void	take_forks(t_philosopher *philo)
-{
-	philo->left_fork_flag = 1;
-	philo->right_fork_flag = 1;
-	if (philo->id % 2 == 0)
-	{
-		take_left_fork(philo);
-		take_right_fork(philo);
-	}
-	else
-	{
-		take_right_fork(philo);
-		take_left_fork(philo);
 	}
 }
 
@@ -257,50 +52,6 @@ void *f_philosopher(void *philosopher)
 		if (nbr == 0)
 			end = 1;
 	}
-}
-
-
-int create_threads(t_data *data)
-{
-	int i;
-	pthread_t check;
-	void *ret;
-
-	i = 0;
-	if(!(data->philosophers = (t_philosopher *)malloc(sizeof(t_philosopher) * number_of_philosophers)))
-		return (0);
-	if ((pthread_create(&check, NULL, check_if_dead_end, (void *) &data)))
-	{
-		mutix_destroy();
-		free (data->philosophers);
-		return (0);
-	}
-	while (i < number_of_philosophers)
-	{
-		data->philosophers[i].id = i;
-		if (pthread_create(&(data->philosophers[i].thread_id), NULL, f_philosopher, (void *) &data->philosophers[i]))
-		{
-			mutix_destroy();
-			free (data->philosophers);
-			return (0);
-		}
-		if (pthread_detach(data->philosophers[i].thread_id))
-		{
-			mutix_destroy();
-			free (data->philosophers);
-			return (0);
-		}
-		i++;
-	}
-	if (pthread_join(check, &ret))
-	{
-		mutix_destroy();
-		free (data->philosophers);
-		return (0);
-	}
-	if (ret == NULL)
-		return (1);
-	return (1);
 }
 
 int	main(int argc, char **argv)
