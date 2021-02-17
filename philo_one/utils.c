@@ -6,7 +6,7 @@
 /*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/17 14:03:19 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/17 14:40:30 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/17 17:52:04 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,17 +51,16 @@ void ft_count_time(long amount_of_time)
 void start(t_data *data)
 {
 	dead = 0;
-	end = 0;
 	number_of_philosophers = 0;
 	time_to_die = 0;
 	time_to_eat = 0;
 	time_to_sleep = 0;
 	data->philosophers = NULL;
 	number_of_times_each_philosopher_must_eat = -1;
-	data->philosopher_id = 0;
+	number_of_philosopher_that_have_eat = 0;
 }
 
-int init_data(t_data *data, char **argv, int argc)
+int init_data(char **argv, int argc)
 {
 	number_of_philosophers = ft_atoi(argv[1]);
 	time_to_die = ft_atoi(argv[2]);

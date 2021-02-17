@@ -6,7 +6,7 @@
 /*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/17 14:00:51 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/17 14:52:15 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/17 17:51:48 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,26 +26,15 @@ typedef struct	s_philosopher
 	long		present_time;
 	int			right_fork_flag;
 	int			left_fork_flag;
-	int			eating;
-	int			locked;
 	int			r_fork_id;
 	int			l_fork_id;
-	int			thinking;
-	int			sleeping;
-	int			died;
 	int			id;
 	pthread_t	thread_id;
-	pthread_t	right_fork_thread;
-	pthread_t	left_fork_thread;
-	pthread_t	timer;
-	pthread_t	put_down_fork;
 }	t_philosopher;
-
 
 typedef struct	s_data
 {
 	t_philosopher	*philosophers;
-	int				philosopher_id;
 	pthread_mutex_t	*mutex_id;
 }	t_data;
 
@@ -58,11 +47,11 @@ typedef struct s_mutex
 t_mutex	*mutex_data;
 int		number_of_philosophers;
 int		number_of_times_each_philosopher_must_eat;
+int		number_of_philosopher_that_have_eat;
 long	time_to_die;
 long	time_to_eat;
 long	time_to_sleep;
 int		dead;
-int		end;
 
 void	*check_if_dead_end(void *data);
 void	*f_philosopher(void *philosopher);
@@ -77,6 +66,6 @@ long	ft_atoi(char *nbr);
 long	ft_get_time(void);
 void	ft_count_time(long amount_of_time);
 void	start(t_data *data);
-int		init_data(t_data *data, char **argv, int argc);
+int		init_data(char **argv, int argc);
 
 #endif

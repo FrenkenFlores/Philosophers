@@ -6,7 +6,7 @@
 /*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/17 14:42:36 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/17 14:52:40 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/17 17:48:11 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ void *check_if_dead_end(void *data)
 	tmp = (t_data *)data;
 	while (1)
 	{
-		if (dead || end)
+		if (dead || \
+		(number_of_philosopher_that_have_eat == number_of_philosophers))
 		{
 			mutix_destroy();
 			return (NULL);
@@ -50,8 +51,12 @@ void *f_philosopher(void *philosopher)
 				printf("%ld %d died\n", ft_get_time(), tmp->id + 1);
 			}
 		if (nbr == 0)
-			end = 1;
+		{
+			number_of_philosopher_that_have_eat++;
+			return (NULL);
+		}
 	}
+	return (NULL);
 }
 
 int	main(int argc, char **argv)
@@ -61,7 +66,7 @@ int	main(int argc, char **argv)
 	start(&data);
 	if (argc == 5 || argc == 6)
 	{
-		if(!(init_data(&data, argv, argc)))
+		if(!(init_data(argv, argc)))
 			return (1);
 		if(!(init_mutex(number_of_philosophers)))
 			return (1);
