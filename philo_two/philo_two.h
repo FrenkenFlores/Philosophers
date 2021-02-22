@@ -6,7 +6,7 @@
 /*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/22 14:12:11 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/22 14:12:12 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/22 16:58:58 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@
 typedef struct s_data
 {
 	pthread_t	pthread;
+	long		last_eat_time;
+	long		present_time;
 	int			id;	
 }	t_data;
 
@@ -36,6 +38,7 @@ long	time_to_die;
 long	time_to_eat;
 long	time_to_sleep;
 int		dead;
+int		even;
 
 
 #endif
