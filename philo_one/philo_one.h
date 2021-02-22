@@ -6,7 +6,7 @@
 /*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/17 14:00:51 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/17 17:51:48 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/22 12:53:17 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void	take_right_fork(t_philosopher *tmp);
 void	take_left_fork(t_philosopher *tmp);
 int		eat_sleep_think(t_philosopher *tmp, int *first_loop);
 void	take_forks(t_philosopher *philo);
-int		init_mutex(int number_of_philosophers);
+int		init_mutex(void);
 void	mutix_destroy(void);
 int		create_threads(t_data *data);
 long	ft_atoi(char *nbr);

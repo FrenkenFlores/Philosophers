@@ -6,7 +6,7 @@
 /*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/17 14:42:36 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/17 17:48:11 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/22 12:53:28 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ int	main(int argc, char **argv)
 	{
 		if(!(init_data(argv, argc)))
 			return (1);
-		if(!(init_mutex(number_of_philosophers)))
+		if(!(init_mutex()))
 			return (1);
 		if(!(create_threads(&data)))
 			return (1);		
