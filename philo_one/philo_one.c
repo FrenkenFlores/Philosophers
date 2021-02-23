@@ -6,7 +6,7 @@
 /*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/17 14:42:36 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/22 12:53:28 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/23 12:35:23 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,10 @@ void *check_if_dead_end(void *data)
 	{
 		if (dead || \
 		(number_of_philosopher_that_have_eat == number_of_philosophers))
-		{
-			mutix_destroy();
 			return (NULL);
-		}
 		usleep(100);
 	}
+	return (NULL);
 }
 
 void *f_philosopher(void *philosopher)

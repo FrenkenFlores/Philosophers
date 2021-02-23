@@ -6,7 +6,7 @@
 /*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/17 14:05:40 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/17 15:00:43 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/23 12:29:42 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,10 @@ int create_threads(t_data *data)
 	if (pthread_join(check, &ret))
 		return (clean(data));
 	if (ret == NULL)
+	{
+		clean(data);
 		return (1);
+	}
+	clean(data);
 	return (1);
 }
