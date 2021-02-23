@@ -28,7 +28,7 @@ void		*f_philosopher(void *philosopher)
 	first_loop = 1;
 	nbr = g_number_of_times_each_philosopher_must_eat;
 	tmp = (t_philosopher *)philosopher;
-	while (1 && nbr != 0)
+	while (1 && nbr != 0 && g_dead != 1)
 	{
 		if (nbr > 0)
 			nbr--;
