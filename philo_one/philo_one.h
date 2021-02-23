@@ -3,22 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   philo_one.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
+/*   By: fflores <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/02/17 14:00:51 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/22 12:53:17 by fflores          ###   ########.fr       */
+/*   Created: 2021/02/23 15:07:00 by fflores           #+#    #+#             */
+/*   Updated: 2021/02/23 15:07:13 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef _PHILO_ONE_H_
-# define _PHILO_ONE_H_
+#ifndef PHILO_ONE_H
+# define PHILO_ONE_H
 
-# include <pthread.h> //threads
-# include <stdio.h>  //printf
-# include <string.h> // memset
-# include <stdlib.h> // malloc, free etc
-# include <unistd.h> // write, usleep
-# include <sys/time.h> // gettimeofday
+# include <pthread.h>
+# include <stdio.h>
+# include <string.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <sys/time.h>
 
 typedef struct	s_philosopher
 {
@@ -30,42 +30,35 @@ typedef struct	s_philosopher
 	int			l_fork_id;
 	int			id;
 	pthread_t	thread_id;
-}	t_philosopher;
+}				t_philosopher;
 
-typedef struct	s_data
-{
-	t_philosopher	*philosophers;
-	pthread_mutex_t	*mutex_id;
-}	t_data;
-
-
-typedef struct s_mutex
+typedef struct	s_mutex
 {
 	pthread_mutex_t	mutex;
-}   t_mutex;
+}				t_mutex;
 
-t_mutex	*mutex_data;
-int		number_of_philosophers;
-int		number_of_times_each_philosopher_must_eat;
-int		number_of_philosopher_that_have_eat;
-long	time_to_die;
-long	time_to_eat;
-long	time_to_sleep;
-int		dead;
+t_mutex			*g_mutex_data;
+int				g_number_of_philosophers;
+int				g_number_of_times_each_philosopher_must_eat;
+int				g_number_of_philosopher_that_have_eat;
+long			g_time_to_die;
+long			g_time_to_eat;
+long			g_time_to_sleep;
+int				g_dead;
 
-void	*check_if_dead_end(void *data);
-void	*f_philosopher(void *philosopher);
-void	take_right_fork(t_philosopher *tmp);
-void	take_left_fork(t_philosopher *tmp);
-int		eat_sleep_think(t_philosopher *tmp, int *first_loop);
-void	take_forks(t_philosopher *philo);
-int		init_mutex(void);
-void	mutix_destroy(void);
-int		create_threads(t_data *data);
-long	ft_atoi(char *nbr);
-long	ft_get_time(void);
-void	ft_count_time(long amount_of_time);
-void	start(t_data *data);
-int		init_data(char **argv, int argc);
+void			*check_if_dead_end(void *data);
+void			*f_philosopher(void *philosopher);
+void			take_right_fork(t_philosopher *tmp);
+void			take_left_fork(t_philosopher *tmp);
+void			take_forks(t_philosopher *philo);
+void			mutix_destroy(void);
+void			ft_count_time(long amount_of_time);
+void			start(void);
+int				eat_sleep_think(t_philosopher *tmp, int *first_loop);
+int				init_mutex(void);
+int				create_threads(void);
+int				init_data(char **argv, int argc);
+long			ft_atoi(char *nbr);
+long			ft_get_time(void);
 
 #endif

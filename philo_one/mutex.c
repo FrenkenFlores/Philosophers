@@ -3,27 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   mutex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
+/*   By: fflores <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/02/17 14:04:16 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/22 12:53:04 by fflores          ###   ########.fr       */
+/*   Created: 2021/02/23 14:34:37 by fflores           #+#    #+#             */
+/*   Updated: 2021/02/23 14:35:39 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_one.h"
 
-int init_mutex(void)
+int		init_mutex(void)
 {
 	int i;
 
 	i = 0;
-	if (!(mutex_data = (t_mutex *)malloc(sizeof(t_mutex) * number_of_philosophers)))
+	if (!(g_mutex_data = \
+	(t_mutex *)malloc(sizeof(t_mutex) * g_number_of_philosophers)))
 		return (0);
-	while (i < number_of_philosophers)
+	while (i < g_number_of_philosophers)
 	{
-		if(pthread_mutex_init(&(mutex_data[i].mutex), NULL))
+		if (pthread_mutex_init(&(g_mutex_data[i].mutex), NULL))
 		{
-			free (mutex_data);
+			free(g_mutex_data);
 			return (0);
 		}
 		i++;
@@ -36,10 +37,10 @@ void	mutix_destroy(void)
 	int i;
 
 	i = 0;
-	while (i < number_of_philosophers)
+	while (i < g_number_of_philosophers)
 	{
-		pthread_mutex_destroy(&mutex_data[i].mutex);
+		pthread_mutex_destroy(&g_mutex_data[i].mutex);
 		i++;
 	}
-	free (mutex_data);
+	free(g_mutex_data);
 }

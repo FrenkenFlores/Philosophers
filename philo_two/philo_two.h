@@ -3,55 +3,52 @@
 /*                                                        :::      ::::::::   */
 /*   philo_two.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
+/*   By: fflores <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/02/22 14:12:11 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/23 12:59:39 by fflores          ###   ########.fr       */
+/*   Created: 2021/02/23 14:08:23 by fflores           #+#    #+#             */
+/*   Updated: 2021/02/23 14:19:48 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_TWO_H
 # define PHILO_TWO_H
 
-#include <fcntl.h> // O_CREATE, etc
-#include <pthread.h> //threads
-#include <stdio.h>  //printf
-#include <string.h> // memset
-#include <stdlib.h> // malloc, free etc
-#include <unistd.h> // write, usleep
-#include <sys/time.h> // gettimeofday
-#include <semaphore.h> // semaphore
+# include <fcntl.h>
+# include <pthread.h>
+# include <stdio.h>
+# include <string.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <sys/time.h>
+# include <semaphore.h>
 
-typedef struct s_data
+typedef struct	s_data
 {
 	pthread_t	pthread;
 	long		last_eat_time;
 	long		present_time;
-	int			id;	
-}	t_data;
+	int			id;
+}				t_data;
 
-sem_t	*semaphore;
-int		number_of_philosophers;
-int		number_of_times_each_philosopher_must_eat;
-int		number_of_philosopher_that_have_eat;
-long	time_to_die;
-long	time_to_eat;
-long	time_to_sleep;
-int		dead;
-int		even;
-char	sem_name[3];
+sem_t			*g_semaphore;
+int				g_number_of_philosophers;
+int				g_number_of_times_each_philosopher_must_eat;
+int				g_number_of_philosopher_that_have_eat;
+long			g_time_to_die;
+long			g_time_to_eat;
+long			g_time_to_sleep;
+int				g_dead;
+int				g_even;
+char			g_sem_name[3];
 
-int	create_threads(void);
-void *check(void *data);
-void *f_philosopher(void *data);
-int	init_sem(void);
-int init_data(char **argv, int argc);
-void start(void);
-void ft_count_time(long amount_of_time);
-long ft_get_time(void);
-long	ft_atoi(char *nbr);
-
-
-
+int				create_threads(void);
+int				init_sem(void);
+int				init_data(char **argv, int argc);
+long			ft_get_time(void);
+long			ft_atoi(char *nbr);
+void			*check(void *data);
+void			*f_philosopher(void *data);
+void			start(void);
+void			ft_count_time(long amount_of_time);
 
 #endif

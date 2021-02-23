@@ -3,65 +3,66 @@
 /*                                                        :::      ::::::::   */
 /*   threads.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
+/*   By: fflores <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/02/17 14:05:40 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/23 13:02:56 by fflores          ###   ########.fr       */
+/*   Created: 2021/02/23 14:59:39 by fflores           #+#    #+#             */
+/*   Updated: 2021/02/23 15:00:54 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_one.h"
 
-static int clean(t_data *data)
+static int	clean(t_philosopher *philosophers)
 {
 	mutix_destroy();
-	free (data->philosophers);
+	free(philosophers);
 	return (0);
 }
 
-void *check_if_dead_end(void *data)
+static int	clean_before_exit(t_philosopher *philosophers)
 {
-	t_data *tmp;
+	clean(philosophers);
+	return (1);
+}
 
-	tmp = (t_data *)data;
+void		*check_if_dead_end(void *tmp)
+{
+	tmp = NULL;
 	while (1)
 	{
-		if (dead || \
-		(number_of_philosopher_that_have_eat == number_of_philosophers))
+		if (g_dead || \
+		(g_number_of_philosopher_that_have_eat == g_number_of_philosophers))
 			return (NULL);
 		usleep(100);
 	}
 	return (NULL);
 }
 
-int create_threads(t_data *data)
+int			create_threads(void)
 {
-	int i;
-	pthread_t check;
-	void *ret;
+	int				i;
+	pthread_t		check;
+	t_philosopher	*philosophers;
+	void			*ret;
 
-	i = 0;
-	if(!(data->philosophers = (t_philosopher *)malloc(sizeof(t_philosopher) * number_of_philosophers)))
+	i = -1;
+	if (!(philosophers = \
+	(t_philosopher *)malloc(sizeof(t_philosopher) * g_number_of_philosophers)))
 		return (0);
-	if ((pthread_create(&check, NULL, check_if_dead_end, (void *) &data)))
-		return (clean(data));
-	while (i < number_of_philosophers)
+	if ((pthread_create(&check, NULL, check_if_dead_end, NULL)))
+		return (clean(philosophers));
+	while (++i < g_number_of_philosophers)
 	{
-		data->philosophers[i].id = i;
-		if (pthread_create(&(data->philosophers[i].thread_id), \
-		NULL, f_philosopher, (void *) &data->philosophers[i]))
-			return (clean(data));
-		if (pthread_detach(data->philosophers[i].thread_id))
-			return (clean(data));
-		i++;
+		philosophers[i].id = i;
+		if (pthread_create(&(philosophers[i].thread_id), \
+		NULL, f_philosopher, (void *)&philosophers[i]))
+			return (clean(philosophers));
+		if (pthread_detach(philosophers[i].thread_id))
+			return (clean(philosophers));
 	}
 	if (pthread_join(check, &ret))
-		return (clean(data));
+		return (clean(philosophers));
 	if (ret == NULL)
-	{
-		clean(data);
-		return (1);
-	}
-	clean(data);
-	return (1);
+		return (clean_before_exit(philosophers));
+	return (clean(philosophers));
 }
