@@ -6,7 +6,7 @@
 /*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/22 14:12:11 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/22 16:58:58 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/23 12:59:39 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,19 @@ long	time_to_eat;
 long	time_to_sleep;
 int		dead;
 int		even;
+char	sem_name[3];
+
+int	create_threads(void);
+void *check(void *data);
+void *f_philosopher(void *data);
+int	init_sem(void);
+int init_data(char **argv, int argc);
+void start(void);
+void ft_count_time(long amount_of_time);
+long ft_get_time(void);
+long	ft_atoi(char *nbr);
+
+
 
 
 #endif

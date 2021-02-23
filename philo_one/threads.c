@@ -6,7 +6,7 @@
 /*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/17 14:05:40 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/23 12:29:42 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/23 13:02:56 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,21 @@ static int clean(t_data *data)
 	mutix_destroy();
 	free (data->philosophers);
 	return (0);
+}
+
+void *check_if_dead_end(void *data)
+{
+	t_data *tmp;
+
+	tmp = (t_data *)data;
+	while (1)
+	{
+		if (dead || \
+		(number_of_philosopher_that_have_eat == number_of_philosophers))
+			return (NULL);
+		usleep(100);
+	}
+	return (NULL);
 }
 
 int create_threads(t_data *data)

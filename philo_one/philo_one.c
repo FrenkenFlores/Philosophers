@@ -6,26 +6,11 @@
 /*   By: fflores < fflores@student.21-school.ru>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/17 14:42:36 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/23 12:35:23 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/23 13:02:51 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_one.h"
-
-void *check_if_dead_end(void *data)
-{
-	t_data *tmp;
-
-	tmp = (t_data *)data;
-	while (1)
-	{
-		if (dead || \
-		(number_of_philosopher_that_have_eat == number_of_philosophers))
-			return (NULL);
-		usleep(100);
-	}
-	return (NULL);
-}
 
 void *f_philosopher(void *philosopher)
 {
