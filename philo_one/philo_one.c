@@ -53,9 +53,9 @@ int			main(int argc, char **argv)
 		if (!(init_data(argv, argc)))
 			return (1);
 		if (!(init_mutex()))
-			return (1);
+			return (2);
 		if (!(create_threads()))
-			return (1);
+			return (3);
 	}
 	else
 		printf("Invalid arguments\n");

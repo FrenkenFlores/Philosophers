@@ -11,14 +11,17 @@
 # include <sys/time.h>
 # include <sys/wait.h>
 # include <semaphore.h>
+# include <signal.h>
 
 typedef struct	s_data
 {
 	long		last_eat_time;
 	long		present_time;
 	int			id;
+	pid_t		pid;
 }				t_data;
 
+sem_t			*g_printf_semaphore;
 sem_t			*g_semaphore;
 int				g_number_of_philosophers;
 int				g_number_of_times_each_philosopher_must_eat;

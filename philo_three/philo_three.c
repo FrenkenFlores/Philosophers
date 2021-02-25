@@ -9,8 +9,11 @@ static	void	even_group(t_data *tmp, int first_loop)
 	tmp->present_time = ft_get_time();
 	if (!first_loop && (tmp->present_time - tmp->last_eat_time) > g_time_to_die)
 	{
+		sem_post(g_semaphore);
+		sem_post(g_semaphore);
 		g_dead = 1;
 		printf("%ld %d died\n", ft_get_time(), tmp->id + 1);
+//		exit(0);
 		return ;
 	}
 	tmp->last_eat_time = ft_get_time();
@@ -35,8 +38,11 @@ static	void	odd_group(t_data *tmp, int first_loop)
 	tmp->present_time = ft_get_time();
 	if (!first_loop && (tmp->present_time - tmp->last_eat_time) > g_time_to_die)
 	{
+		sem_post(g_semaphore);
+		sem_post(g_semaphore);
 		g_dead = 1;
 		printf("%ld %d died\n", ft_get_time(), tmp->id + 1);
+//		exit(0);
 		return ;
 	}
 	tmp->last_eat_time = ft_get_time();
@@ -80,9 +86,9 @@ int				main(int argc, char **argv)
 		if (!(init_data(argv, argc)))
 			return (1);
 		if (!(init_sem()))
-			return (1);
+			return (2);
 		if (!(create_processes()))
-			return (1);
+			return (3);
 	}
 	else
 		printf("Invalid arguments\n");
