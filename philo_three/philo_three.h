@@ -1,5 +1,17 @@
-#ifndef PHILO_TWO_H
-# define PHILO_TWO_H
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_three.h                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fflores <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/02/25 19:12:00 by fflores           #+#    #+#             */
+/*   Updated: 2021/02/25 19:12:22 by fflores          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef PHILO_THREE_H
+# define PHILO_THREE_H
 
 # include <signal.h>
 # include <pthread.h>
@@ -43,5 +55,7 @@ void			*check(void *data);
 void			*f_philosopher(t_data *data);
 void			start(void);
 void			ft_count_time(long amount_of_time);
+void			even_group(t_data *tmp);
+void			odd_group(t_data *tmp);
 
 #endif

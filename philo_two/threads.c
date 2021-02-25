@@ -29,6 +29,8 @@ static	int	clean(t_data *data)
 {
 	free(data);
 	sem_unlink(g_sem_name);
+	sem_unlink("printf");
+	sem_close(g_sem_printf);
 	sem_close(g_semaphore);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: fflores <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/23 14:36:12 by fflores           #+#    #+#             */
-/*   Updated: 2021/02/23 14:58:41 by fflores          ###   ########.fr       */
+/*   Updated: 2021/02/25 19:20:20 by fflores          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ void		*f_philosopher(void *philosopher)
 {
 	int				nbr;
 	t_philosopher	*tmp;
-	struct timeval	time;
 
 	nbr = g_number_of_times_each_philosopher_must_eat;
 	tmp = (t_philosopher *)philosopher;
