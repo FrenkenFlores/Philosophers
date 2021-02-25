@@ -56,7 +56,7 @@ void			take_forks(t_philosopher *philo);
 void			mutix_destroy(void);
 void			ft_count_time(long amount_of_time);
 void			start(void);
-int				eat_sleep_think(t_philosopher *tmp, int *first_loop);
+int				eat_sleep_think(t_philosopher *tmp);
 int				init_mutex(void);
 int				create_threads(void);
 int				init_data(char **argv, int argc);

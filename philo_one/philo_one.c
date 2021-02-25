@@ -22,20 +22,19 @@ static void	init_dead(t_philosopher *tmp)
 void		*f_philosopher(void *philosopher)
 {
 	int				nbr;
-	int				first_loop;
 	t_philosopher	*tmp;
 	struct timeval	time;
 
-	first_loop = 1;
 	nbr = g_number_of_times_each_philosopher_must_eat;
 	tmp = (t_philosopher *)philosopher;
+	tmp->last_eat_time = 0;
 	while (1 && nbr != 0 && g_dead != 1)
 	{
 		if (nbr > 0)
 			nbr--;
 		take_forks(tmp);
 		if (!tmp->left_fork_flag && !tmp->right_fork_flag)
-			if (!(eat_sleep_think(tmp, &first_loop)))
+			if (!(eat_sleep_think(tmp)))
 				init_dead(tmp);
 		if (nbr == 0)
 		{

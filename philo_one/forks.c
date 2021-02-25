@@ -32,17 +32,19 @@ void	take_left_fork(t_philosopher *tmp)
 	pthread_mutex_unlock(&g_printf_mutex);
 }
 
-int		eat_sleep_think(t_philosopher *tmp, int *first_loop)
+int		eat_sleep_think(t_philosopher *tmp)
 {
 	tmp->present_time = ft_get_time();
-	if (((tmp->present_time - tmp->last_eat_time) > g_time_to_die) && \
-			*first_loop == 0)
+	if (((tmp->present_time - tmp->last_eat_time) > g_time_to_die))
 		return (0);
 	tmp->last_eat_time = ft_get_time();
 	pthread_mutex_lock(&g_printf_mutex);
 	printf("%ld %d is eating\n", ft_get_time(), tmp->id + 1);
 	pthread_mutex_unlock(&g_printf_mutex);
 	ft_count_time(g_time_to_eat);
+	tmp->present_time = ft_get_time();
+	if (((tmp->present_time - tmp->last_eat_time) > g_time_to_die))
+		return (0);
 	pthread_mutex_unlock(&g_mutex_data[tmp->l_fork_id].mutex);
 	pthread_mutex_unlock(&g_mutex_data[tmp->r_fork_id].mutex);
 	pthread_mutex_lock(&g_printf_mutex);
@@ -52,7 +54,6 @@ int		eat_sleep_think(t_philosopher *tmp, int *first_loop)
 	pthread_mutex_lock(&g_printf_mutex);
 	printf("%ld %d is thinking\n", ft_get_time(), tmp->id + 1);
 	pthread_mutex_unlock(&g_printf_mutex);
-	*first_loop = 0;
 	return (1);
 }
 
