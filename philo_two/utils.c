@@ -72,6 +72,8 @@ int		init_data(char **argv, int argc)
 int		init_sem(void)
 {
 	sem_unlink(g_sem_name);
+	sem_unlink("printf");
+	g_sem_printf = sem_open("printf", O_CREAT, 0666, 1);
 	g_semaphore = sem_open(g_sem_name, O_CREAT, 0666, \
 	g_number_of_philosophers);
 	if (g_semaphore == SEM_FAILED)

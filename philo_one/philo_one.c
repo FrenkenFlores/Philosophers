@@ -15,6 +15,7 @@
 static void	init_dead(t_philosopher *tmp)
 {
 	g_dead = 1;
+	pthread_mutex_lock(&g_printf_mutex);
 	printf("%ld %d died\n", ft_get_time(), tmp->id + 1);
 }
 

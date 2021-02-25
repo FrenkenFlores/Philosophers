@@ -29,6 +29,11 @@ int		init_mutex(void)
 		}
 		i++;
 	}
+	if (pthread_mutex_init(&g_printf_mutex, NULL))
+	{
+		free(g_mutex_data);
+		return (0);
+	}
 	return (2);
 }
 

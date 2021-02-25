@@ -37,6 +37,7 @@ typedef struct	s_mutex
 	pthread_mutex_t	mutex;
 }				t_mutex;
 
+pthread_mutex_t	g_printf_mutex;
 t_mutex			*g_mutex_data;
 int				g_number_of_philosophers;
 int				g_number_of_times_each_philosopher_must_eat;
