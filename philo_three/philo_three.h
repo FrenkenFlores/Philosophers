@@ -21,7 +21,7 @@ typedef struct	s_data
 	pid_t		pid;
 }				t_data;
 
-sem_t			*g_printf_semaphore;
+sem_t			*g_sem_printf;
 sem_t			*g_semaphore;
 int				g_number_of_philosophers;
 int				g_number_of_times_each_philosopher_must_eat;

@@ -1,27 +1,5 @@
 #include "philo_three.h"
 
-void		*check(void *ptr)
-{
-	int i;
-	t_data *tmp;
-
-	i = 0;
-	tmp = (t_data *)ptr;
-	while (1)
-	{
-	i = 0;
-	while(i < g_number_of_philosophers)
-	{
-//		wait(NULL);
-		waitpid(tmp[i].pid, NULL, 0);
-		i++;
-		printf("@2");
-	}
-		usleep(100);
-	}
-	return (NULL);
-}
-
 static	int	clean(t_data *data)
 {
 	free(data);
@@ -66,12 +44,8 @@ int			create_processes(void)
 			return (clean(data));
 		i++;
 	}
-    // if (pthread_create(&check_thread, NULL, check, (void *)&data))
-	// 	return (clean(data));
-    // if (pthread_join(check_thread, &ret))
-	// 	return (clean(data));
 	i = 0;
-	if (waitpid(data[i].pid, NULL, 0))
+	if (waitpid(-1, NULL, 0))
 	{
 		while (i < g_number_of_philosophers)
 		{
@@ -79,13 +53,6 @@ int			create_processes(void)
 			i++;
 		}
 	}
-// 	while(i < g_number_of_philosophers)
-// 	{
-// 		waitpid(data[i].pid, NULL, 0);
-// 		i++;
-// //		printf("@2");
-// 	}
-//	printf("\n<<%d>>\n", g_dead);
 	if (ret == NULL)
 		return (clean_before_close(data));
 	return (clean(data));
