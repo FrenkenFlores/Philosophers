@@ -19,7 +19,7 @@ long	ft_get_time(void)
 
 	gettimeofday(&tv, NULL);
 	t = tv.tv_sec * 1000 + tv.tv_usec / 1000;
-	return (t);
+	return (t - g_start_time);
 }
 
 void	ft_count_time(long amount_of_time)

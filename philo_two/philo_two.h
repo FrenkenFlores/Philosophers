@@ -38,6 +38,7 @@ int				g_number_of_philosopher_that_have_eat;
 long			g_time_to_die;
 long			g_time_to_eat;
 long			g_time_to_sleep;
+long			g_start_time;
 int				g_dead;
 int				g_even;
 char			g_sem_name[3];

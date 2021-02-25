@@ -31,6 +31,10 @@ long	ft_atoi(char *nbr)
 
 void	start(void)
 {
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	g_start_time = tv.tv_sec * 1000 + tv.tv_usec / 1000;
 	g_dead = 0;
 	g_number_of_philosophers = 0;
 	g_time_to_die = 0;
